@@ -2,8 +2,7 @@
 
 > SQL-driven analysis of a 5,000-user sample to find **who cancels, why, and what it costs**, with recommendations to improve retention.
 
-![Netflix churn report](netflix_report.jpg)
-[![View Live Dashboard](https://img.shields.io/badge/Looker%20Studio-View%20Dashboard-4285F4?logo=looker&logoColor=white)](https://datastudio.google.com/s/vG4OaIyEX54)
+[![Netflix churn report](netflix_report.jpg)](https://datastudio.google.com/s/vG4OaIyEX54)
 
 ## Table of Contents
 - [About This Project](#about-this-project)
@@ -193,7 +192,7 @@ ORDER BY total_watch_hours DESC;
 ## Tools
 
 - SQL
-- Looker Studio
+- Looker Studio: [Interactive dashboard](https://datastudio.google.com/s/vG4OaIyEX54)
 
 ## Repository Structure
 
