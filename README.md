@@ -193,11 +193,3 @@ ORDER BY total_watch_hours DESC;
 
 - SQL
 - Looker Studio: [Interactive dashboard](https://datastudio.google.com/s/vG4OaIyEX54)
-
-## Repository Structure
-
-```
-.
-├── README.md
-└── netflix_report-1.jpg
-```
