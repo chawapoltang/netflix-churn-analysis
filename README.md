@@ -2,7 +2,7 @@
 
 > SQL-driven analysis of a 5,000-user sample to find **who cancels, why, and what it costs**, with recommendations to improve retention.
 
-![Netflix churn report](netflix_report-1.jpg)
+![Netflix churn report](netflix_report.jpg)
 
 ## Table of Contents
 - [About This Project](#about-this-project)
