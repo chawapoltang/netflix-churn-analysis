@@ -53,8 +53,8 @@ Sample of 5,000 users from the Netflix Customer Churn dataset.
 ```sql
 SELECT
   subscription_type,
-  SUM(churned)                          AS churned_customers,
-  COUNT(*)                              AS total_customers,
+  SUM(churned) AS churned_customers,
+  COUNT(*) AS total_customers,
   ROUND(SUM(churned) * 100.0 / COUNT(*), 2) AS churn_rate_pct
 FROM netflix_churn
 GROUP BY subscription_type
@@ -74,9 +74,9 @@ ORDER BY churn_rate_pct DESC;
 ```sql
 SELECT
   churned,
-  COUNT(*)                     AS n_customers,
-  ROUND(SUM(watch_hours), 2)   AS total_watch_hours,
-  ROUND(AVG(watch_hours), 2)   AS avg_watch_hours
+  COUNT(*) AS n_customers,
+  ROUND(SUM(watch_hours), 2) AS total_watch_hours,
+  ROUND(AVG(watch_hours), 2) AS avg_watch_hours
 FROM netflix_churn
 GROUP BY churned;
 ```
@@ -88,43 +88,15 @@ GROUP BY churned;
 
 **Insight:** Churned users aren't non-viewers. They try the service, finish what they came for (or fail to find something new), and cancel. If a new user can be pushed past roughly 17 hours of early viewing, the churn risk drops sharply.
 
-### 3. Watch time vs. churn (engagement loss)
-
-```sql
-SELECT
-  CASE
-    WHEN watch_hours < 1 THEN '1. 0-1 hrs'
-    WHEN watch_hours < 2 THEN '2. 1-2 hrs'
-    WHEN watch_hours < 3 THEN '3. 2-3 hrs'
-    WHEN watch_hours < 4 THEN '4. 3-4 hrs'
-    WHEN watch_hours < 5 THEN '5. 4-5 hrs'
-    ELSE '6. 5+ hrs'
-  END AS watch_bucket,
-  churned,
-  COUNT(*) AS n_customers
-FROM netflix_churn
-GROUP BY watch_bucket, churned
-ORDER BY watch_bucket, churned;
-```
-
-Share of users in each bucket:
-
-| churned | 0-1 hr | 1-2 hr | 2-3 hr | 3-4 hr | 4-5 hr | 5+ hr |
-| --- | --- | --- | --- | --- | --- | --- |
-| 0 (retained) | 14.18% | 18.95% | 16.23% | 21.27% | 21.15% | 70.27% |
-| 1 (churned) | 85.82% | 81.05% | 83.77% | 78.73% | 78.85% | 29.73% |
-
-**Insight:** About 86% of users with under 1 hour of watch time churned. Low engagement is the strongest churn signal in this dataset.
-
-### 4. ARPU (Average Revenue Per User)
+### 3. ARPU (Average Revenue Per User)
 
 ```sql
 SELECT
   churned,
   subscription_type,
-  COUNT(customer_id)           AS n_customers,
-  ROUND(SUM(monthly_fee), 2)   AS total_monthly_fee,
-  ROUND(AVG(monthly_fee), 2)   AS avg_monthly_fee
+  COUNT(customer_id) AS n_customers,
+  ROUND(SUM(monthly_fee), 2) AS total_monthly_fee,
+  ROUND(AVG(monthly_fee), 2) AS avg_monthly_fee
 FROM netflix_churn
 GROUP BY churned, subscription_type
 ORDER BY churned, avg_monthly_fee DESC;
@@ -141,7 +113,7 @@ ORDER BY churned, avg_monthly_fee DESC;
 | 1 | Basic | 1,027 | 9,233 | $8.99 |
 | **1 total** | | **2,515** | **33,010** | **$13.13** |
 
-### 5. Top genres by watch time
+### 4. Top genres by watch time
 
 ```sql
 SELECT
