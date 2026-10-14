@@ -30,7 +30,6 @@ Subscription streaming lives or dies on retention. This project analyzes a 5,000
 | Users analyzed | 5,000 |
 | Churned users | 2,515 (50.3%) |
 | Lost MRR | $33,009.85 / month (48.25% of potential revenue) |
-| Annualized loss | ~$396,118 |
 | Avg. watch hours (retained vs. churned) | 17.45 vs. 5.92 |
 
 ---
