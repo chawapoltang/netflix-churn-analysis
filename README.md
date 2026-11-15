@@ -172,4 +172,4 @@ All three engagement variables are significant at the 0.1% level (p < 0.001).
 ## Tools
 
 - R (dplyr, ggplot2, glm)
-- Looker Studio (optional dashboard)
+- Looker Studio
