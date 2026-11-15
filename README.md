@@ -1,13 +1,13 @@
 # Netflix Customer Churn Analysis
 
-> SQL-driven analysis of a 5,000-user sample to find **who cancels, why, and what it costs**, with recommendations to improve retention.
-
-[![Netflix churn report](netflix_report.jpg)](https://datastudio.google.com/s/vG4OaIyEX54)
+> Analysis of a 5,000-user sample to understand **who cancels, why, and what it costs**, then turns the findings into practical retention recommendations.
 
 ## Table of Contents
 - [About This Project](#about-this-project)
 - [Data and Scope](#data-and-scope)
+- [Limitations](#limitations)
 - [Analysis and Findings](#analysis-and-findings)
+- [Churn Prediction](#churn-prediction)
 - [Key Findings](#key-findings)
 - [Recommendations](#recommendations)
 - [Tools](#tools)
@@ -16,12 +16,7 @@
 
 ## About This Project
 
-Subscription streaming lives or dies on retention. This project analyzes a 5,000-user sample of the Netflix Customer Churn dataset to answer four business questions:
-
-1. Which subscription plans have the highest churn?
-2. How does engagement (watch hours) differ between churned and retained users?
-3. How much monthly recurring revenue (MRR) is lost to churn, and which plan drives most of it?
-4. Which genres drive the most viewing, and where should content investment go?
+Subscription streaming lives or dies on retention. This project analyzes a 5,000-user sample of the Netflix Customer Churn dataset to understand who cancels, when, and what it costs, then turns the findings into practical retention recommendations.
 
 **Headline results**
 
@@ -29,7 +24,7 @@ Subscription streaming lives or dies on retention. This project analyzes a 5,000
 | --- | --- |
 | Users analyzed | 5,000 |
 | Churned users | 2,515 (50.3%) |
-| Lost MRR | $33,009.85 / month (48.25% of potential revenue) |
+| Lost monthly revenue | $33,010 (48.2% of potential MRR) |
 | Avg. watch hours (retained vs. churned) | 17.45 vs. 5.92 |
 
 ---
@@ -46,121 +41,129 @@ Sample of 5,000 users from the Netflix Customer Churn dataset.
 
 ---
 
+## Limitations
+
+- This dataset contains synthetic data simulating customer behavior for a Netflix-like video streaming service.
+- It includes 5,000 records with no time-series component.
+
+---
+
 ## Analysis and Findings
 
-### 1. Churn rate by plan
+### Revenue Loss Overview
 
-```sql
-SELECT
-  subscription_type,
-  SUM(churned) AS churned_customers,
-  COUNT(*) AS total_customers,
-  ROUND(SUM(churned) * 100.0 / COUNT(*), 2) AS churn_rate_pct
-FROM netflix_churn
-GROUP BY subscription_type
-ORDER BY churn_rate_pct DESC;
-```
-
-| subscription_type | churned | total_customers | churn_rate |
+| churned | subscription_type | N customers | SUM of monthly_fee |
 | --- | --- | --- | --- |
-| Basic | 1,027 | 1,661 | 61.83% |
-| Standard | 748 | 1,646 | 45.44% |
-| Premium | 740 | 1,693 | 43.71% |
+| 0 | Premium | 953 | 17,144 |
+| 0 | Standard | 898 | 12,563 |
+| 0 | Basic | 634 | 5,700 |
+| **0 Total** | | **2,485** | **35,407** |
+| 1 | Premium | 740 | 13,313 |
+| 1 | Standard | 748 | 10,465 |
+| 1 | Basic | 1,027 | 9,233 |
+| **1 Total** | | **2,515 (50.3%)** | **33,010 (48.2%)** |
 
-**Insight:** Basic users churn at the highest rate, so the cheapest plan is the least sticky.
+**Total monthly revenue loss: $33,010 (48.2%)**  
+Premium = highest revenue loss | Basic = highest number of customers lost
 
-### 2. Average watch time: churned vs. retained
+### Churn Overview
 
-```sql
-SELECT
-  churned,
-  COUNT(*) AS n_customers,
-  ROUND(SUM(watch_hours), 2) AS total_watch_hours,
-  ROUND(AVG(watch_hours), 2) AS avg_watch_hours
-FROM netflix_churn
-GROUP BY churned;
-```
-
-| churned | n_customers | total_watch_hours | avg_watch_hours |
+| churned | N | SUM of watch_hours | Average watch hours |
 | --- | --- | --- | --- |
 | 0 | 2,485 | 43,362.23 | 17.45 |
 | 1 | 2,515 | 14,885.02 | 5.92 |
 
-**Insight:** Churned users aren't non-viewers. They try the service, finish what they came for (or fail to find something new), and cancel. If a new user can be pushed past roughly 17 hours of early viewing, the churn risk drops sharply.
+Retained users average 17.5 hours of viewing, while churned users average only 5.9 hours.
 
-### 3. ARPU (Average Revenue Per User)
+### Churn Rate by Watch Time Group
 
-```sql
-SELECT
-  churned,
-  subscription_type,
-  COUNT(customer_id) AS n_customers,
-  ROUND(SUM(monthly_fee), 2) AS total_monthly_fee,
-  ROUND(AVG(monthly_fee), 2) AS avg_monthly_fee
-FROM netflix_churn
-GROUP BY churned, subscription_type
-ORDER BY churned, avg_monthly_fee DESC;
-```
+Users who watch less than 1 hour have an approximately 88% churn rate.
 
-| churned | subscription_type | n_customers | SUM monthly_fee | AVG monthly_fee |
+### Deep Dive: Users with watch_hours < 1
+
+- In the group that watched less than 1 hour, **Basic package users churned 100%**.
+- In the same group, users with **only 1 profile churned 100%**.
+- Age distribution remains spread out (no clear pattern).
+- Device shows similar churn rates across types.
+- Favorite genres among this high-risk group include Action, Documentary, and Comedy.
+
+---
+
+## Churn Prediction
+
+Logistic regression was used to predict churn with three engagement features:  
+`last_login_days` + `watch_hours` + `avg_watch_time_per_day`
+
+### Model Coefficients
+
+| Variable | Coefficient | p-value | Significant at 0.1%? | Notes |
 | --- | --- | --- | --- | --- |
-| 0 | Premium | 953 | 17,144 | $17.99 |
-| 0 | Standard | 898 | 12,563 | $13.99 |
-| 0 | Basic | 634 | 5,700 | $8.99 |
-| **0 total** | | **2,485** | **35,407** | **$14.25** |
-| 1 | Premium | 740 | 13,313 | $17.99 |
-| 1 | Standard | 748 | 10,465 | $13.99 |
-| 1 | Basic | 1,027 | 9,233 | $8.99 |
-| **1 total** | | **2,515** | **33,010** | **$13.13** |
+| Intercept | 0.178 | 0.302 | No | Not significant |
+| last_login_days | 0.082 | < 2e-16 | Yes | Extremely strong |
+| watch_hours | -0.175 | < 2e-16 | Yes | Extremely strong |
+| avg_watch_time_per_day | -2.428 | 5.85e-09 | Yes | Very strong |
 
-### 4. Top genres by watch time
+All three engagement variables are significant at the 0.1% level (p < 0.001).
 
-```sql
-SELECT
-  favorite_genre,
-  ROUND(SUM(watch_hours), 2) AS total_watch_hours
-FROM netflix_churn
-GROUP BY favorite_genre
-ORDER BY total_watch_hours DESC;
-```
+### Test Set Performance (80/20 split)
 
-| favorite_genre | total_watch_hours |
+**Confusion Matrix**
+
+| Actual \ Predicted | 0 | 1 |
+|--------------------|---|---|
+| **0**              | 423 | 76 |
+| **1**              | 58  | 443 |
+
+| Metric | Value |
 | --- | --- |
-| Romance | 9,233.88 |
-| Drama | 8,510.68 |
-| Sci-Fi | 8,359.06 |
-| Documentary | 8,335.39 |
-| Comedy | 8,321.50 |
-| Horror | 7,877.22 |
-| Action | 7,609.52 |
+| Accuracy | 0.866 |
+| Precision | 0.854 |
+| Recall | 0.884 |
+| F1 Score | 0.869 |
 
-**Insight:** Romance and Drama lead in viewing hours, making them the strongest candidates for catalog expansion.
+### Odds Ratios
+
+| Variable | Odds Ratio | Interpretation |
+| --- | --- | --- |
+| last_login_days | 1.085 | Each additional day without login increases churn odds by ~8.5% |
+| watch_hours | 0.839 | Each additional hour watched reduces churn odds to 83.9% of the previous level (~16% reduction) |
+| avg_watch_time_per_day | 0.088 | Each additional hour of average daily watching strongly reduces churn odds (to 8.8% of the previous level) |
 
 ---
 
 ## Key Findings
 
-- **Revenue at risk is large.** Of $68,417 potential MRR per month, **$33,009.85 (48.25%)** is lost to churn, about **$396,118 per year**.
-- **Premium causes the biggest financial damage** at $13,312.60 lost MRR per month, since each churned Premium user is worth the most.
-- **Basic has the biggest volume problem**, with a 61.83% churn rate.
-- **Churn is engagement-driven.** Churned users average 5.92 watch hours vs. 17.45 for retained users, and the first hours of viewing matter most.
+1. `last_login_days`: longer inactivity → higher churn risk  
+2. `watch_hours`: lower total viewing → higher churn risk  
+3. `avg_watch_time_per_day`: lower daily average → higher churn risk  
+4. High-risk segment for retention focus: **Basic + low watch hours** (especially those with 1 profile)
 
 ---
 
 ## Recommendations
 
-| Pain point | Recommended action |
-| --- | --- |
-| Basic churn is 61.83%, with little reason to stay | **Upsell / cross-sell campaign** moving Basic users to Standard |
-| Premium churn costs the most revenue ($13,312.60/month) | Send **exclusive content or perks** to at-risk Premium users before they cancel |
-| Early churn: users finish what they came for (~5.92 hrs) and leave | Push new users toward **~17 hours** of viewing through personalized recommendations and episodic or part-release content |
-| Engagement drops after a main series ends | Expand the **Romance** and **Drama** catalog, the top drivers of watch hours |
+### Proposed Experiment: A/B Test for High-Risk Basic Users
 
-> **Note:** The 17-hour threshold is a correlation, not proof that more viewing prevents churn. It should be validated with an A/B experiment before being treated as a causal target.
+**Target group:** Basic subscribers with `watch_hours < 1` (not limited to 1 profile)  
+**Duration:** 4 weeks or until sufficient sample size is reached  
+**Randomization:** Users who click the cancel button
+
+**Groups**
+- A (Control, 33%): Existing cancel page  
+- B (33%): Offer to pause membership for 1 month  
+- C (33%): Offer 50% discount for 2 months  
+
+**Metrics**
+1. **Primary**: Churn rate within 30 days after visiting the cancel page  
+2. **Secondary**:
+   - Offer acceptance rate (B and C)
+   - `watch_hours` and `avg_watch_time_per_day` at 14 and 30 days after the offer
+   - `last_login_days` after receiving the offer
+   - Retention rate after the pause / promotion period ends (for B and C)
 
 ---
 
 ## Tools
 
-- SQL
-- Looker Studio: [Interactive dashboard](https://datastudio.google.com/s/vG4OaIyEX54)
+- R (dplyr, ggplot2, glm)
+- Looker Studio (optional dashboard)
