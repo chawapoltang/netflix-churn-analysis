@@ -95,8 +95,6 @@ Users who watch less than 1 hour have an approximately 88% churn rate.
 - Favorite genres among this high-risk group include Action, Documentary, and Comedy.
 <img width="858" height="447" alt="genre" src="https://github.com/user-attachments/assets/86f9410e-26ab-409e-88c8-88e1ba12ce4d" />
 
----
-
 ## Churn Prediction
 
 Logistic regression was used to predict churn with three engagement features:  
