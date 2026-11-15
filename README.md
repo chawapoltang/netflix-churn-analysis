@@ -76,16 +76,24 @@ Premium = highest revenue loss | Basic = highest number of customers lost
 Retained users average 17.5 hours of viewing, while churned users average only 5.9 hours.
 
 ### Churn Rate by Watch Time Group
-
 Users who watch less than 1 hour have an approximately 88% churn rate.
 
 ### Deep Dive: Users with watch_hours < 1
 
 - In the group that watched less than 1 hour, **Basic package users churned 100%**.
+  <img width="606" height="391" alt="Churn Rate by Watch Time Group" src="https://github.com/user-attachments/assets/11b13ca1-b2a1-4d7f-8ed1-d4e8a0bf1afa" />
+
 - In the same group, users with **only 1 profile churned 100%**.
+  <img width="606" height="391" alt="Number of Profiles in Low Watch Group ( 1hr)" src="https://github.com/user-attachments/assets/6a3ffd5a-1f14-46f9-a42d-f51849ceee25" />
+
 - Age distribution remains spread out (no clear pattern).
+  <img width="858" height="447" alt="Age distribution " src="https://github.com/user-attachments/assets/dda4f2ff-d91c-4b2f-b462-b14cdae48381" />
+
 - Device shows similar churn rates across types.
+  <img width="858" height="447" alt="device" src="https://github.com/user-attachments/assets/e98d7698-3401-4cb5-a08b-1da7750461be" />
+
 - Favorite genres among this high-risk group include Action, Documentary, and Comedy.
+<img width="858" height="447" alt="genre" src="https://github.com/user-attachments/assets/86f9410e-26ab-409e-88c8-88e1ba12ce4d" />
 
 ---
 
